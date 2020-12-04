@@ -4,7 +4,6 @@ class Tokenizer:
     index = 0
     space = ' '
     eol = '\n'
-    allowed_tokens = ['+', '-', '*', '/', '=']
 
     def __init__(self, text):
         self.text = text
@@ -25,15 +24,21 @@ class Tokenizer:
         except IndexError:
             return None
 
-    def is_token(self, char):
-        return char in self.allowed_tokens
-
     def is_end_of_word(self, char):
         return char == self.eol or char == self.space or char == self.form_start or char == self.form_end or char == None
 
+    def parse_word(self, word):
+        try:
+            return int(word)
+        except ValueError:
+            try:
+                return float(word)
+            except ValueError:
+                return word
+
     def read_word(self):
         word = [self.next()]
-        
+
         if self.is_end_of_word(word[0]):
             return ''.join(word)
 
@@ -46,7 +51,7 @@ class Tokenizer:
 
         while self.index < self.length:
             word = self.read_word()
-            
+
             if word == self.form_start:
                 form.append(self.tokenize())
             elif word == self.form_end:
@@ -54,14 +59,16 @@ class Tokenizer:
             elif self.is_end_of_word(word):
                 continue
             else:
-                form.append(word)
+                form.append(self.parse_word(word))
 
         return form
 
-text1 = '(+ 1 (* num -4'
+
+text1 = '(+ 1.2 (* num -4))'
 text2 = '''
     (def fizz (x y)
     (+ x y))
+    (+ 1 2)
 '''
 text3 = '''
     (begin (def fizz (a b)
@@ -79,7 +86,7 @@ text5 = '''
     1
     (* x (factorial (- x 1)))))
 '''
-tokenizer = Tokenizer(text5)
+tokenizer = Tokenizer(text2)
 tokens = tokenizer.tokenize()
 
 print(tokens)
