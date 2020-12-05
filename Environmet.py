@@ -1,14 +1,16 @@
 class Environment:
-    def __init__(self, initial_dict = {}, parent = None):
-        self.dict = initial_dict
+    def __init__(self, names = [], values = [], parent = None):
+        self.dictionary = {}
+        for name, value in zip(names, values):
+            self.dictionary[name] = value
         self.parent = parent
 
     def add(self, name, value):
-        self.dict[name] = value
+        self.dictionary[name] = value
     
     def lookup(self, name):
         try:
-            return self.dict[name]
+            return self.dictionary[name]
         except KeyError:
             if self.parent != None:
                 return self.parent.lookup(name)

@@ -1,13 +1,13 @@
 class Tokenizer:
     form_start = '('
     form_end = ')'
-    index = 0
     space = ' '
     eol = '\n'
 
     def __init__(self, text):
         self.text = text
         self.length = len(text)
+        self.index = 0
 
     def next(self):
         try:
