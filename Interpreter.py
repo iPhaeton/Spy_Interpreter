@@ -59,9 +59,10 @@ class Interpreter:
         elif form[0] == 'def':
             (_, name, params, body) = form
             func_env = env
+            owner_env = env
             if env.is_class == True:
                 func_env = env.parent
-            env.add(name, Function(params, body, func_env))
+            env.add(name, Function(params, body, func_env, owner_env))
         elif form[0] == 'if':
             (_, condition, ifBody, elseBody) = form
             if self.eval(condition, env):
@@ -78,7 +79,11 @@ class Interpreter:
                     args = [self.eval(x, env) for x in form[1:]]
                     return f(*args)
             else:
-                args = [self.eval(x, env) for x in form[1:]]
+                args = []
+                if f.owner_environment.is_class == True:
+                    args.append(f.owner_environment)
+                args = args + [self.eval(x, env) for x in form[1:]]
+
                 return self.eval(f.body,
                                  Environment(
                                      f.formal,
@@ -87,36 +92,3 @@ class Interpreter:
                                  ))
         else:
             raise "Illegal expression: " + str(form)
-
-        # print(env.dictionary)
-
-
-text1 = '''
-    (begin
-        (set x 5)
-        (def sum (a b) (if (>= a b) (+ (+ a b) x) 0))
-        (sum 7 2)
-    )
-'''
-
-text2 = '''
-    (begin
-        (set x 0)
-        (class Class None
-            (begin
-                (set a 1)
-                (def get_x () x)
-                (def get_a (self, b) b)
-            )
-        )
-        (set cl (Class None))
-        ((attr cl get_a) cl 2)
-    )
-'''
-
-tokenizer = Tokenizer(text2)
-expression1 = tokenizer.tokenize()
-print(expression1)
-interpreter = Interpreter()
-value = interpreter.eval(expression1)
-print(value)

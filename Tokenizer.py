@@ -62,26 +62,3 @@ class Tokenizer:
                 form.append(self.parse_word(word))
 
         return ['begin'] + form
-
-
-text1 = '(+ 1.2 (* num -4))'
-text2 = '''
-    (def fizz (x y)
-    (+ x y))
-'''
-text3 = '''
-    (begin (def fizz (a b)
-    (+ a b))
-    (fizz 3 4))
-'''
-text4 = '''
-    (if (= x 3)
-    (fizz x 10)
-    (+ x 4))
-'''
-text5 = '''
-    (def factorial (x)
-    (if (= x 1)
-    1
-    (* x (factorial (- x 1)))))
-'''
