@@ -53,12 +53,15 @@ class Interpreter:
             (_, name, super, body) = form
             if super == 'None':
                 super = self.global_env
-            class_env = Environment(parent=super)
+            class_env = Environment(parent=super, is_class=True)
             env.add(name, lambda: Environment(parent=class_env))
             self.eval(body, class_env)
         elif form[0] == 'def':
             (_, name, params, body) = form
-            env.add(name, Function(params, body, env))
+            func_env = env
+            if env.is_class == True:
+                func_env = env.parent
+            env.add(name, Function(params, body, func_env))
         elif form[0] == 'if':
             (_, condition, ifBody, elseBody) = form
             if self.eval(condition, env):
@@ -75,10 +78,11 @@ class Interpreter:
                     args = [self.eval(x, env) for x in form[1:]]
                     return f(*args)
             else:
+                args = [self.eval(x, env) for x in form[1:]]
                 return self.eval(f.body,
                                  Environment(
                                      f.formal,
-                                     [self.eval(x, env) for x in form[1:]],
+                                     args,
                                      f.environment,
                                  ))
         else:
@@ -102,11 +106,11 @@ text2 = '''
             (begin
                 (set a 1)
                 (def get_x () x)
-                (def get_a () a)
+                (def get_a (self, b) b)
             )
         )
         (set cl (Class None))
-        ((attr cl get_a) cl)
+        ((attr cl get_a) cl 2)
     )
 '''
 
