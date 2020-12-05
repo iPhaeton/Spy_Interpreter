@@ -61,14 +61,13 @@ class Tokenizer:
             else:
                 form.append(self.parse_word(word))
 
-        return form
+        return ['begin'] + form
 
 
 text1 = '(+ 1.2 (* num -4))'
 text2 = '''
     (def fizz (x y)
     (+ x y))
-    (+ 1 2)
 '''
 text3 = '''
     (begin (def fizz (a b)
@@ -86,7 +85,3 @@ text5 = '''
     1
     (* x (factorial (- x 1)))))
 '''
-tokenizer = Tokenizer(text2)
-tokens = tokenizer.tokenize()
-
-print(tokens)
