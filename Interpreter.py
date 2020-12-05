@@ -1,6 +1,7 @@
 from Environmet import Environment
 from Tokenizer import Tokenizer
 from Function import Function
+from Primitive import Primitive
 
 
 class Interpreter:
@@ -8,15 +9,15 @@ class Interpreter:
         self.global_env = Environment(
             ['+', '-', '*', '/', '=', '>', '<', '>=', '<='],
             [
-                lambda a, b: a + b,
-                lambda a, b: a - b,
-                lambda a, b: a * b,
-                lambda a, b: a / b,
-                lambda a, b: a == b,
-                lambda a, b: a > b,
-                lambda a, b: a < b,
-                lambda a, b: a >= b,
-                lambda a, b: a <= b,
+                Primitive(lambda a, b: a + b),
+                Primitive(lambda a, b: a - b),
+                Primitive(lambda a, b: a * b),
+                Primitive(lambda a, b: a / b),
+                Primitive(lambda a, b: a == b),
+                Primitive(lambda a, b: a > b),
+                Primitive(lambda a, b: a < b),
+                Primitive(lambda a, b: a >= b),
+                Primitive(lambda a, b: a <= b),
             ],
         )
 
@@ -35,6 +36,8 @@ class Interpreter:
             return form
         elif isinstance(form, float):
             return form
+        elif form == 'None':
+            return None
         elif isinstance(form, str):
             return env.lookup(form)
         elif form[0] == 'begin':
@@ -58,7 +61,8 @@ class Interpreter:
             if super == 'None':
                 super = self.global_env
             class_env = Environment(parent=super, type='class')
-            env.add(name, lambda: Environment(parent=class_env, type='instance'))
+            env.add(name, Primitive(lambda: Environment(
+                parent=class_env, type='instance')))
             self.eval(body, class_env)
         elif form[0] == 'def':
             (_, name, params, body) = form
@@ -76,11 +80,8 @@ class Interpreter:
             f = self.eval(form[0], env)
 
             if callable(f):
-                if (len(form[1:]) == 1 and form[1:][0] == 'None'):
-                    return f()
-                else:
-                    args = [self.eval(x, env) for x in form[1:]]
-                    return f(*args)
+                args = [self.eval(x, env) for x in form[1:]]
+                return f(*args)
             else:
                 args = []
                 if f.owner_environment is not None and f.owner_environment.type == 'instance':
