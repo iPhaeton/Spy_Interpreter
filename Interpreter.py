@@ -44,7 +44,11 @@ class Interpreter:
             return val
         elif form[0] == 'attr':
             (_, object_expr, name) = form
-            return self.eval(object_expr, env).lookup(name)
+            object_instance = self.eval(object_expr, env)
+            value = object_instance.lookup(name)
+            if (isinstance(value, Function)):
+                value.owner_environment = object_instance
+            return value
         elif form[0] == 'set':
             (_, lhs, expr) = form
             (targetEnv, name) = self.lhs_eval(lhs, env)
@@ -53,16 +57,15 @@ class Interpreter:
             (_, name, super, body) = form
             if super == 'None':
                 super = self.global_env
-            class_env = Environment(parent=super, is_class=True)
-            env.add(name, lambda: Environment(parent=class_env))
+            class_env = Environment(parent=super, type='class')
+            env.add(name, lambda: Environment(parent=class_env, type='instance'))
             self.eval(body, class_env)
         elif form[0] == 'def':
             (_, name, params, body) = form
             func_env = env
-            owner_env = env
-            if env.is_class == True:
+            if env.type == 'class':
                 func_env = env.parent
-            env.add(name, Function(params, body, func_env, owner_env))
+            env.add(name, Function(params, body, func_env))
         elif form[0] == 'if':
             (_, condition, ifBody, elseBody) = form
             if self.eval(condition, env):
@@ -80,7 +83,7 @@ class Interpreter:
                     return f(*args)
             else:
                 args = []
-                if f.owner_environment.is_class == True:
+                if f.owner_environment is not None and f.owner_environment.type == 'instance':
                     args.append(f.owner_environment)
                 args = args + [self.eval(x, env) for x in form[1:]]
 

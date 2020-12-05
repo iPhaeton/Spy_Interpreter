@@ -1,10 +1,10 @@
 class Environment:
-    def __init__(self, names = [], values = [], parent = None, is_class = False):
+    def __init__(self, names = [], values = [], parent = None, type = 'general'): #type = 'general' | 'class' | 'instance'
         self.dictionary = {}
         for name, value in zip(names, values):
             self.dictionary[name] = value
         self.parent = parent
-        self.is_class = is_class
+        self.type = type
 
     def add(self, name, value):
         self.dictionary[name] = value

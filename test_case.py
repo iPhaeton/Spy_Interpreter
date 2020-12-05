@@ -19,8 +19,14 @@ test_case_2 = '''
                 (def get_a (self b) (+ (attr self a) b))
             )
         )
-        (set cl (Class None))
-        ((attr cl get_a) 2)
+        (set cl1 (Class None))
+        (set val1 ((attr cl1 get_a) 2))
+
+        (set cl2 (Class None))
+        (set (attr cl2 a) 3)
+        (set val2 ((attr cl2 get_a) 2))
+
+        (+ val1 val2)
     )
 '''
 
@@ -28,10 +34,10 @@ tokenizer_1 = Tokenizer(test_case_1)
 expression_1 = tokenizer_1.tokenize()
 interpreter_1 = Interpreter()
 value_1 = interpreter_1.eval(expression_1)
-print('test case 1', value_1)
+print('test case 1:', value_1) #14
 
 tokenizer_2 = Tokenizer(test_case_2)
 expression_2 = tokenizer_2.tokenize()
 interpreter_2 = Interpreter()
 value_2 = interpreter_2.eval(expression_2)
-print('test case 2', value_2)
+print('test case 2:', value_2) #8
